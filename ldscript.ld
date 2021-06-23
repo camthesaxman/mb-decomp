@@ -20,14 +20,14 @@ SECTIONS
     .sbss :
     {
         /* TODO: include .sbss sections here */
-        . += 0x580F0;
+        asm/program.o(.sbss);
     }
     __sbss_size = . - __sbss;
 
     __ebss = .;
     .ebss :
     {
-        /* TODO: include .ebss sections here */
+        asm/program.o(.ebss);
     }
     
     . = 0xC31F000;
@@ -155,3 +155,7 @@ SECTIONS
 __stack_begin = 0x0CC00000;
 main = 0x0C0200E0;
 _testModeFlag = 0x0C0CAEF4;
+
+FUN_0c020094 = _unk_0C020094;
+
+INCLUDE undefined.ld
