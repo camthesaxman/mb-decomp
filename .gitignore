@@ -16,3 +16,7 @@ ghidra/mb-decomp.rep/mb-decomp.*
 
 # Editor swap files
 *.sw*
+
+# Misc. stuff
+sdk/
+*.dump

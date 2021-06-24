@@ -1,5 +1,7 @@
 ifneq (,$(findstring Windows,$(OS)))
   EXE := .exe
+else
+  WINE := wine
 endif
 
 ### Build Options ###
@@ -9,6 +11,9 @@ COMPARE ?= 1
 CROSS_PREFIX ?= sh4-linux-gnu-
 
 ### Tools ###
+SDK_DIR := sdk
+export COMPILER_PATH := Z:$(shell realpath $(SDK_DIR)/Bin)
+CC      := $(WINE) $(SDK_DIR)/Bin/gcc.exe
 AS      := $(CROSS_PREFIX)as
 LD      := $(CROSS_PREFIX)ld
 OBJCOPY := $(CROSS_PREFIX)objcopy
@@ -16,7 +21,10 @@ SHA1SUM := sha1sum
 HOSTCC  := cc
 EXTRACT := files/dump-files$(EXE)
 
-ASFLAGS     := -EL
+#CFLAGS      := -Wall -O2 -mhitachi -mnomacsave -m4-single-only -ml -fno-expand-main -ffast-math
+CFLAGS      := -Wall -O2 -mhitachi -m4-single-only -ml -ffast-math
+#CFLAGS      := -Wall -O2 -ml
+ASFLAGS     := -EL -I asm
 LDFLAGS     := -EL --accept-unknown-input-arch
 HOSTCCFLAGS := -Wall -O0 -g
 
@@ -25,10 +33,11 @@ BASEROM := baserom.bin
 BIN := monkeyball.bin
 ELF := $(BIN:.bin=.elf)
 LDSCRIPT := ldscript.ld
+C_FILES := src/code_0C0CAEF8.c
 S_FILES := $(wildcard asm/*.s) $(wildcard src/*.s)
 # Read list of files from file-list.txt
 DATAFILES := $(shell awk '{print "files/"$$1}' files/file-list.txt)
-O_FILES := $(S_FILES:.s=.o) $(DATAFILES:=.o)
+O_FILES := $(C_FILES:.c=.o) $(S_FILES:.s=.o) $(DATAFILES:=.o)
 
 ### Main Rules ###
 
@@ -44,6 +53,9 @@ endif
 
 $(ELF): $(LDSCRIPT) $(O_FILES)
 	$(LD) $(LDFLAGS) -T $(LDSCRIPT) -Map $(@:.elf=.map) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@

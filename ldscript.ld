@@ -13,7 +13,10 @@ SECTIONS
     {
         src/crt0.o(.text);
         asm/program.o(.text);
-    }
+        src/code_0C0CAEF8.o(.text);
+        /*. = ALIGN(0x100);*/
+        asm/program_2.o(.text);
+    } = 0x0900 /* pad with nop */
 
     . = 0x0C20CAE0;
     __sbss = .;
@@ -21,6 +24,7 @@ SECTIONS
     {
         /* TODO: include .sbss sections here */
         asm/program.o(.sbss);
+        asm/program_2.o(.sbss);
     }
     __sbss_size = . - __sbss;
 
@@ -28,6 +32,7 @@ SECTIONS
     .ebss :
     {
         asm/program.o(.ebss);
+        asm/program_2.o(.ebss);
     }
     
     . = 0xC31F000;
